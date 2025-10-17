@@ -1,0 +1,35 @@
+{
+  "distribution": {
+    "total_files": 400,
+    "class_distribution": {
+      "real": 260,
+      "fake": 140
+    },
+    "dataset_distribution": {
+      "celeb-df": 200,
+      "youtube-real": 100,
+      "faceforensics": 100
+    }
+  },
+  "video_properties": {
+    "avg_duration": 11.914814814814816,
+    "avg_fps": 30.0,
+    "resolutions": {
+      "850x472": 2,
+      "950x500": 1,
+      "844x474": 1,
+      "848x472": 1,
+      "856x478": 1,
+      "782x440": 1,
+      "892x500": 1,
+      "654x500": 1
+    }
+  },
+  "image_quality": {
+    "avg_width": 150.0,
+    "avg_height": 150.0,
+    "avg_blur_score": 123.81093662103703,
+    "avg_brightness": 93.81031333333333,
+    "avg_contrast": 57.4874884223489
+  }
+}
