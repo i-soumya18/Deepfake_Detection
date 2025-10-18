@@ -319,6 +319,5 @@ This project is for educational and research purposes. Commercial use requires p
 
 ---
 
-**Built with ❤️ for advancing deepfake detection research and education.**
 
 *Last updated: 2025-01-01*

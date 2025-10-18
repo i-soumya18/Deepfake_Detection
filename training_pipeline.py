@@ -70,7 +70,7 @@ class DeepfakeDataset(Dataset):
             'fft_magnitude': torch.randn(256, 256),
             'lbp': torch.randn(256, 256),
             'noise_residuals': torch.randn(256, 256, 3),
-            'sequence_features': torch.randn(8, 512) if self.is_video else torch.zeros(1, 1),  # Avoid None
+            'sequence_features': torch.randn(8, 512) if self.is_video else None,  # None for images
             'label': torch.tensor(label, dtype=torch.float32),
             'file_path': file_path
         }
@@ -205,7 +205,7 @@ class DeepfakeTrainer:
             sequence_features = batch['sequence_features']
             
             # Handle sequence features for temporal model
-            if sequence_features is not None and sequence_features[0] is not None:
+            if sequence_features is not None:
                 sequence_features = sequence_features.to(self.device)
             else:
                 sequence_features = None
@@ -305,7 +305,7 @@ class DeepfakeTrainer:
                 labels = batch['label'].to(self.device).unsqueeze(1)
                 sequence_features = batch['sequence_features']
                 
-                if sequence_features is not None and sequence_features[0] is not None:
+                if sequence_features is not None:
                     sequence_features = sequence_features.to(self.device)
                 else:
                     sequence_features = None
@@ -472,6 +472,42 @@ def prepare_dataset(data_path, sample_limit=100, test_size=0.2, random_state=42)
     
     return train_paths, val_paths, train_labels, val_labels
 
+def custom_collate_fn(batch):
+    """Custom collate function to handle None values in sequence_features"""
+    # Separate the items
+    spatial = torch.stack([item['spatial'] for item in batch])
+    fft_magnitude = torch.stack([item['fft_magnitude'] for item in batch])
+    lbp = torch.stack([item['lbp'] for item in batch])
+    noise_residuals = torch.stack([item['noise_residuals'] for item in batch])
+    labels = torch.stack([item['label'] for item in batch])
+    file_paths = [item['file_path'] for item in batch]
+    
+    # Handle sequence features - check if any are not None
+    sequence_features_list = [item['sequence_features'] for item in batch]
+    if any(sf is not None for sf in sequence_features_list):
+        # If some have sequence features, create a batch tensor
+        # For None values, create dummy tensors
+        seq_features = []
+        for sf in sequence_features_list:
+            if sf is not None:
+                seq_features.append(sf)
+            else:
+                # Create dummy tensor with same dimensions as others
+                seq_features.append(torch.zeros(8, 512))
+        sequence_features = torch.stack(seq_features)
+    else:
+        sequence_features = None
+    
+    return {
+        'spatial': spatial,
+        'fft_magnitude': fft_magnitude,
+        'lbp': lbp,
+        'noise_residuals': noise_residuals,
+        'sequence_features': sequence_features,
+        'label': labels,
+        'file_path': file_paths
+    }
+
 def create_data_loaders(train_paths, val_paths, train_labels, val_labels, 
                        preprocessor, batch_size=4, num_workers=2):
     """Create PyTorch data loaders"""
@@ -491,7 +527,8 @@ def create_data_loaders(train_paths, val_paths, train_labels, val_labels,
         shuffle=True,
         num_workers=0,  # Disable multiprocessing for CUDA compatibility
         pin_memory=True,
-        drop_last=True
+        drop_last=True,
+        collate_fn=custom_collate_fn
     )
     
     val_loader = DataLoader(
@@ -499,7 +536,8 @@ def create_data_loaders(train_paths, val_paths, train_labels, val_labels,
         batch_size=batch_size,
         shuffle=False,
         num_workers=0,  # Disable multiprocessing for CUDA compatibility
-        pin_memory=True
+        pin_memory=True,
+        collate_fn=custom_collate_fn
     )
     
     return train_loader, val_loader
@@ -512,12 +550,12 @@ def main():
     # Configuration
     config = {
         'data_path': '/home/soumya/PycharmProjects/Deepfake_Detection',
-        'sample_limit': 100,  # Start with 100 samples as requested
+        'sample_limit': 500,  # Start with 100 samples as requested
         'batch_size': 4,      # Small batch for testing
         'num_epochs': 20,
         'learning_rate': 1e-4,
         'device': 'cuda' if torch.cuda.is_available() else 'cpu',
-        'use_temporal': False,  # Start with image-only
+        'use_temporal': False,  # Disable temporal for image-only training
         'num_workers': 0  # Disable for CUDA compatibility
     }
     

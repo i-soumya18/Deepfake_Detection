@@ -42,7 +42,7 @@ class DeepfakeEvaluator:
         print(f"📦 Loading model from: {model_path}")
         
         try:
-            checkpoint = torch.load(model_path, map_location=self.device)
+            checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
             if 'model_state_dict' in checkpoint:
                 self.model.load_state_dict(checkpoint['model_state_dict'])
                 print(f"✅ Model loaded successfully!")

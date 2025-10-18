@@ -62,7 +62,7 @@ class DeepfakeDetector:
             
             # Load trained weights
             if os.path.exists(model_path):
-                checkpoint = torch.load(model_path, map_location=self.device)
+                checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
                 if 'model_state_dict' in checkpoint:
                     self.model.load_state_dict(checkpoint['model_state_dict'])
                     self.model_info = {
