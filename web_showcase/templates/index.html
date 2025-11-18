@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepfake Detection - Hybrid Model</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shield-alt"></i> Deepfake Detection System</h1>
+            <p>Hybrid Spatial-Frequency Model for Real-time Media Analysis</p>
+        </header>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3>Upload Media for Analysis</h3>
+                        <p>Drag & drop or click to browse</p>
+                        <p class="file-types">Supports: Images (JPG, PNG, WEBP) & Videos (MP4, AVI, MOV)</p>
+                        <input type="file" id="fileInput" accept="image/*,video/*" hidden>
+                        <button class="upload-btn" id="uploadBtn">
+                            <i class="fas fa-folder-open"></i> Choose File
+                        </button>
+                    </div>
+                </div>
+
+                <div class="preview-section" id="previewSection" style="display: none;">
+                    <h4>Preview</h4>
+                    <div class="media-preview">
+                        <img id="previewImage" alt="Image preview" style="display: none;">
+                        <video id="previewVideo" controls style="display: none;"></video>
+                    </div>
+                    <button class="analyze-btn" id="analyzeBtn">
+                        <i class="fas fa-search"></i> Analyze Media
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h3>Analysis Results</h3>
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="prediction-badge" id="predictionBadge">
+                            <i class="fas fa-spinner fa-spin"></i> Analyzing...
+                        </div>
+                        <div class="confidence-score" id="confidenceScore">
+                            --
+                        </div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span class="label">Method:</span>
+                            <span class="value" id="methodUsed">Hybrid Model</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Risk Level:</span>
+                            <span class="value" id="riskLevel">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Processing Time:</span>
+                            <span class="value" id="processingTime">--</span>
+                        </div>
+                    </div>
+
+                    <div class="branch-analysis" id="branchAnalysis" style="display: none;">
+                        <h4>Branch Analysis</h4>
+                        <div class="branch-bars">
+                            <div class="branch-bar">
+                                <span class="branch-label">Spatial</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="spatialBar" style="width: 0%"></div>
+                                </div>
+                                <span class="branch-value" id="spatialValue">--</span>
+                            </div>
+                            <div class="branch-bar">
+                                <span class="branch-label">Frequency</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="frequencyBar" style="width: 0%"></div>
+                                </div>
+                                <span class="branch-value" id="frequencyValue">--</span>
+                            </div>
+                            <div class="branch-bar">
+                                <span class="branch-label">Texture</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="textureBar" style="width: 0%"></div>
+                                </div>
+                                <span class="branch-value" id="textureValue">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="metrics-section">
+            <h3><i class="fas fa-chart-line"></i> Model Performance</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Accuracy</h4>
+                        <div class="metric-value" id="accuracyValue">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-chart-area"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>AUC-ROC</h4>
+                        <div class="metric-value" id="aucValue">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>F1-Score</h4>
+                        <div class="metric-value" id="f1Value">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Recall</h4>
+                        <div class="metric-value" id="recallValue">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Precision</h4>
+                        <div class="metric-value" id="precisionValue">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h4>Epochs</h4>
+                        <div class="metric-value" id="epochsValue">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="model-info-section">
+            <h3><i class="fas fa-info-circle"></i> Model Architecture</h3>
+            <div class="architecture-diagram">
+                <div class="arch-branch">
+                    <h4>Spatial Branch</h4>
+                    <div class="arch-component">
+                        <i class="fas fa-image"></i>
+                        <span>EfficientNet-B7</span>
+                    </div>
+                    <p>Analyzes visual artifacts and facial inconsistencies</p>
+                </div>
+                <div class="arch-branch">
+                    <h4>Frequency Branch</h4>
+                    <div class="arch-component">
+                        <i class="fas fa-wave-square"></i>
+                        <span>FFT + DCT</span>
+                    </div>
+                    <p>Detects frequency domain manipulations</p>
+                </div>
+                <div class="arch-branch">
+                    <h4>Texture Branch</h4>
+                    <div class="arch-component">
+                        <i class="fas fa-th"></i>
+                        <span>LBP Features</span>
+                    </div>
+                    <p>Identifies texture and noise patterns</p>
+                </div>
+                <div class="arch-fusion">
+                    <i class="fas fa-plus"></i>
+                    <span>Fusion Layer</span>
+                    <i class="fas fa-arrow-right"></i>
+                    <span>Classification</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
